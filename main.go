@@ -12,6 +12,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// 版本信息常量
+const (
+	AppName    = "MCr_gradletools"
+	Version    = "0.4.2"
+	BuildDate  = "2025-10-03"
+	GoVersion  = "go1.25"
+	Repository = "https://gitee.com/CreateCN/mcrgradletool"
+)
+
 var currentUser, _ = user.Current()
 var GradlePath = filepath.Join(currentUser.HomeDir, ".mcreator", "gradle", "wrapper", "dists")
 
@@ -59,19 +68,19 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					listOnly := c.Bool("list")
-					
+
 					if listOnly {
 						// 仅列出缓存文件
 						files, err := lib.ListCacheFiles()
 						if err != nil {
 							return fmt.Errorf("获取缓存文件列表失败: %v", err)
 						}
-						
+
 						if len(files) == 0 {
 							fmt.Println("缓存目录为空")
 							return nil
 						}
-						
+
 						fmt.Printf("缓存目录 (%s) 中的文件:\n", lib.GetCacheDir())
 						for i, file := range files {
 							fmt.Printf("  %d. %s\n", i+1, file)
@@ -79,41 +88,41 @@ func main() {
 						fmt.Printf("总计: %d 个文件\n", len(files))
 						return nil
 					}
-					
+
 					// 清理缓存
 					fmt.Println("正在清理Gradle下载缓存...")
-					
+
 					// 先列出缓存文件
 					files, err := lib.ListCacheFiles()
 					if err != nil {
 						return fmt.Errorf("获取缓存文件列表失败: %v", err)
 					}
-					
+
 					if len(files) == 0 {
 						fmt.Println("缓存目录为空，无需清理")
 						return nil
 					}
-					
+
 					fmt.Printf("即将删除 %d 个缓存文件:\n", len(files))
 					for i, file := range files {
 						fmt.Printf("  %d. %s\n", i+1, file)
 					}
-					
+
 					// 确认删除
 					fmt.Print("\n确认删除这些文件吗？(y/N): ")
 					var confirm string
 					fmt.Scanln(&confirm)
-					
+
 					if strings.ToLower(confirm) != "y" && strings.ToLower(confirm) != "yes" {
 						fmt.Println("操作已取消")
 						return nil
 					}
-					
+
 					// 执行清理
 					if err := lib.ClearCache(); err != nil {
 						return fmt.Errorf("清理缓存失败: %v", err)
 					}
-					
+
 					fmt.Println("✅ 缓存清理完成")
 					return nil
 				},
@@ -172,6 +181,21 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "version",
+				Aliases: []string{"v", "ver"},
+				Usage:   "显示程序版本信息",
+				Action: func(c *cli.Context) error {
+					fmt.Printf("%s 版本信息\n", AppName)
+					fmt.Printf("版本: %s\n", Version)
+					fmt.Printf("构建日期: %s\n", BuildDate)
+					fmt.Printf("Go版本: %s\n", GoVersion)
+					fmt.Printf("项目仓库: %s\n", Repository)
+					fmt.Println("\n一款专为MCreator设计的Gradle管理工具")
+					fmt.Println("作者: CreateCN")
+					return nil
+				},
+			},
 		},
 		Action: func(c *cli.Context) error {
 			fmt.Println("MCr_gradletools - MCreator Gradle管理工具")
@@ -181,6 +205,7 @@ func main() {
 			fmt.Println("  clear-cache   - 清理Gradle下载缓存")
 			fmt.Println("  download      - 下载指定版本的Gradle")
 			fmt.Println("  gradle        - 自动处理MCreator的Gradle下载问题")
+			fmt.Println("  version       - 显示程序版本信息")
 			return nil
 		},
 	}

@@ -81,7 +81,7 @@ func downloadFile(url, filepath string) error {
 
 	// 获取文件大小用于进度条
 	contentLength := resp.ContentLength
-	
+
 	out, err := os.Create(filepath)
 	if err != nil {
 		return fmt.Errorf("创建文件失败: %v", err)
@@ -91,23 +91,23 @@ func downloadFile(url, filepath string) error {
 	// 创建进度条
 	bar := progressbar.NewOptions64(
 		contentLength,
-		progressbar.OptionSetDescription("下载进度"),
+		progressbar.OptionSetDescription("📥 下载进度"),
 		progressbar.OptionSetWriter(os.Stderr),
 		progressbar.OptionShowBytes(true),
-		progressbar.OptionSetWidth(50),
-		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionSetWidth(60),
+		progressbar.OptionThrottle(50*time.Millisecond),
 		progressbar.OptionShowCount(),
 		progressbar.OptionOnCompletion(func() {
-			fmt.Fprint(os.Stderr, "\n")
+			fmt.Fprint(os.Stderr, "✅ 下载完成\n")
 		}),
-		progressbar.OptionSpinnerType(14),
+		progressbar.OptionSpinnerType(9),
 		progressbar.OptionFullWidth(),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "=",
-			SaucerHead:    ">",
-			SaucerPadding: "-",
-			BarStart:      "[",
-			BarEnd:        "]",
+			Saucer:        "█",
+			SaucerHead:    "🟢",
+			SaucerPadding: "░",
+			BarStart:      "|",
+			BarEnd:        "|",
 		}),
 	)
 
@@ -124,21 +124,21 @@ func downloadFile(url, filepath string) error {
 func CheckAllMirrors() ([]string, []string) {
 	var availableMirrors []string
 	var unavailableMirrors []string
-	
+
 	// 使用一个测试版本号来检查镜像可用性
 	testVersion := "8.7"
-	
+
 	for _, mirror := range mirrors {
 		// 替换版本号占位符
 		url := strings.Replace(mirror.url, "{{version}}", testVersion, -1)
-		
+
 		if checkMirrorAvailability(url) {
 			availableMirrors = append(availableMirrors, mirror.name)
 		} else {
 			unavailableMirrors = append(unavailableMirrors, mirror.name)
 		}
 	}
-	
+
 	return availableMirrors, unavailableMirrors
 }
 
@@ -150,18 +150,18 @@ func GetCacheDir() string {
 // 删除缓存目录中的所有文件
 func ClearCache() error {
 	cacheDir := GetCacheDir()
-	
+
 	// 检查缓存目录是否存在
 	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
 		return fmt.Errorf("缓存目录不存在: %s", cacheDir)
 	}
-	
+
 	// 遍历缓存目录并删除所有文件
 	err := filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		
+
 		// 跳过目录本身，只删除文件
 		if !info.IsDir() {
 			if err := os.Remove(path); err != nil {
@@ -169,14 +169,14 @@ func ClearCache() error {
 			}
 			fmt.Printf("已删除: %s\n", filepath.Base(path))
 		}
-		
+
 		return nil
 	})
-	
+
 	if err != nil {
 		return fmt.Errorf("清理缓存失败: %v", err)
 	}
-	
+
 	return nil
 }
 
@@ -184,24 +184,24 @@ func ClearCache() error {
 func ListCacheFiles() ([]string, error) {
 	cacheDir := GetCacheDir()
 	var files []string
-	
+
 	// 检查缓存目录是否存在
 	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
 		return files, nil // 目录不存在，返回空列表
 	}
-	
+
 	// 读取缓存目录
 	entries, err := os.ReadDir(cacheDir)
 	if err != nil {
 		return nil, fmt.Errorf("读取缓存目录失败: %v", err)
 	}
-	
+
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			files = append(files, entry.Name())
 		}
 	}
-	
+
 	return files, nil
 }
 

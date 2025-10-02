@@ -168,23 +168,23 @@ func CopyGradleToTarget(version, edition, targetDir string) error {
 	// 创建复制进度条
 	bar := progressbar.NewOptions64(
 		fileSize,
-		progressbar.OptionSetDescription("复制进度"),
+		progressbar.OptionSetDescription("📋 复制进度"),
 		progressbar.OptionSetWriter(os.Stderr),
 		progressbar.OptionShowBytes(true),
-		progressbar.OptionSetWidth(50),
-		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionSetWidth(60),
+		progressbar.OptionThrottle(50*time.Millisecond),
 		progressbar.OptionShowCount(),
 		progressbar.OptionOnCompletion(func() {
-			fmt.Fprint(os.Stderr, "\n")
+			fmt.Fprint(os.Stderr, "✅ 复制完成\n")
 		}),
-		progressbar.OptionSpinnerType(14),
+		progressbar.OptionSpinnerType(9),
 		progressbar.OptionFullWidth(),
 		progressbar.OptionSetTheme(progressbar.Theme{
-			Saucer:        "=",
-			SaucerHead:    ">",
-			SaucerPadding: "-",
-			BarStart:      "[",
-			BarEnd:        "]",
+			Saucer:        "█",
+			SaucerHead:    "🟢",
+			SaucerPadding: "░",
+			BarStart:      "|",
+			BarEnd:        "|",
 		}),
 	)
 
