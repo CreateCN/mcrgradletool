@@ -142,6 +142,69 @@ func CheckAllMirrors() ([]string, []string) {
 	return availableMirrors, unavailableMirrors
 }
 
+// 获取缓存目录路径
+func GetCacheDir() string {
+	return filepath.Join(".", "cache")
+}
+
+// 删除缓存目录中的所有文件
+func ClearCache() error {
+	cacheDir := GetCacheDir()
+	
+	// 检查缓存目录是否存在
+	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
+		return fmt.Errorf("缓存目录不存在: %s", cacheDir)
+	}
+	
+	// 遍历缓存目录并删除所有文件
+	err := filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		
+		// 跳过目录本身，只删除文件
+		if !info.IsDir() {
+			if err := os.Remove(path); err != nil {
+				return fmt.Errorf("删除文件失败: %s, 错误: %v", path, err)
+			}
+			fmt.Printf("已删除: %s\n", filepath.Base(path))
+		}
+		
+		return nil
+	})
+	
+	if err != nil {
+		return fmt.Errorf("清理缓存失败: %v", err)
+	}
+	
+	return nil
+}
+
+// 获取缓存目录中的文件列表
+func ListCacheFiles() ([]string, error) {
+	cacheDir := GetCacheDir()
+	var files []string
+	
+	// 检查缓存目录是否存在
+	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
+		return files, nil // 目录不存在，返回空列表
+	}
+	
+	// 读取缓存目录
+	entries, err := os.ReadDir(cacheDir)
+	if err != nil {
+		return nil, fmt.Errorf("读取缓存目录失败: %v", err)
+	}
+	
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			files = append(files, entry.Name())
+		}
+	}
+	
+	return files, nil
+}
+
 // 下载并安装Gradle
 // edition参数指定下载版本："bin" 或 "all"
 func DownloadGradle(version, edition string) error {

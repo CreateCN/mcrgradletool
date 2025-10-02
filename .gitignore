@@ -1,6 +1,7 @@
 .trae/
 cache/
 .vscode/
+output/
 
 *.exe
 *.iss
