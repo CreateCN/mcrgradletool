@@ -138,7 +138,7 @@ func CopyGradleToTarget(version, edition, targetDir string) error {
 	}
 
 	// 源文件路径（缓存目录）
-	cacheDir := filepath.Join(".", "cache")
+	cacheDir := GetCacheDir()
 	sourceFile := filepath.Join(cacheDir, version+"-"+edition+".zip")
 
 	// 目标文件路径

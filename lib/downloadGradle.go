@@ -144,7 +144,14 @@ func CheckAllMirrors() ([]string, []string) {
 
 // 获取缓存目录路径
 func GetCacheDir() string {
-	return filepath.Join(".", "cache")
+	// 使用用户的应用数据目录，避免写入桌面
+	userHome, err := os.UserHomeDir()
+	if err != nil {
+		// 如果获取用户目录失败，使用当前目录作为备选方案
+		return filepath.Join(".", "cache")
+	}
+	// 在用户主目录下创建 .mcrgradletool 目录存放缓存
+	return filepath.Join(userHome, ".mcrgradletool", "cache")
 }
 
 // 删除缓存目录中的所有文件
@@ -210,7 +217,7 @@ func ListCacheFiles() ([]string, error) {
 func DownloadGradle(version, edition string) error {
 
 	// 创建缓存目录
-	cacheDir := filepath.Join(".", "cache")
+	cacheDir := GetCacheDir()
 	if err := os.MkdirAll(cacheDir, os.ModePerm); err != nil {
 		return fmt.Errorf("创建缓存目录失败: %v", err)
 	}
