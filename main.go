@@ -15,7 +15,7 @@ import (
 // 版本信息常量
 const (
 	AppName    = "MCr_gradletools"
-	Version    = "0.4.2"
+	Version    = "0.4.3"
 	BuildDate  = "2025-10-03"
 	GoVersion  = "go1.25"
 	Repository = "https://gitee.com/CreateCN/mcrgradletool"

@@ -2,75 +2,75 @@ name: Simple Mirror Sync
 
 on:
   workflow_dispatch:
-    schedule:
-        - cron: '0 18 * * *'
+  schedule:
+    - cron: '0 18 * * *'
 
-        jobs:
-          mirror:
-              runs-on: ubuntu-latest
-                  
-                      steps:
-                          - name: Clone from Gitee and push to GitHub
-                                id: sync
-                                      run: |
-                                              # 创建临时目录
-                                                      mkdir -p /tmp/mirror-sync
-                                                              cd /tmp/mirror-sync
-                                                                      
-                                                                              echo "🔄 开始从 Gitee 镜像同步..."
-                                                                                      
-                                                                                              # 从Gitee镜像克隆
-                                                                                                      git clone --mirror https://gitee.com/CreateCN/mcrgradletool.git .
-                                                                                                              echo "✅ 成功从 Gitee 克隆仓库"
-                                                                                                                      
-                                                                                                                              # 设置GitHub远程仓库
-                                                                                                                                      git remote set-url --push origin https://${{ secrets.PAT_TOKEN }}@github.com/CreateCN/mcrgradletool.git
-                                                                                                                                              
-                                                                                                                                                      echo "🚀 开始推送到 GitHub..."
-                                                                                                                                                              
-                                                                                                                                                                      # 强制推送到GitHub，忽略特定错误
-                                                                                                                                                                              git push --mirror --force || true
-                                                                                                                                                                                      
-                                                                                                                                                                                              echo "📊 检查同步状态..."
-                                                                                                                                                                                                      
-                                                                                                                                                                                                              # 显示同步的分支信息
-                                                                                                                                                                                                                      echo "=== 已同步的分支 ==="
-                                                                                                                                                                                                                              git branch -a | grep -v "gitee/" || true
-                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                              # 显示同步的标签信息
-                                                                                                                                                                                                                                                      echo "=== 已同步的标签 ==="
-                                                                                                                                                                                                                                                              git tag -l || true
-                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                              # 检查主要内容是否已同步
-                                                                                                                                                                                                                                                                                      MAIN_SYNCED=$(git ls-remote origin refs/heads/main | wc -l)
-                                                                                                                                                                                                                                                                                              if [ "$MAIN_SYNCED" -gt 0 ]; then
-                                                                                                                                                                                                                                                                                                        echo "✅ 主分支同步成功"
-                                                                                                                                                                                                                                                                                                                else
-                                                                                                                                                                                                                                                                                                                          echo "❌ 主分支同步失败"
-                                                                                                                                                                                                                                                                                                                                  fi
-                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                  # 清理
-                                                                                                                                                                                                                                                                                                                                                          cd /tmp
-                                                                                                                                                                                                                                                                                                                                                                  rm -rf mirror-sync
-                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                              - name: Display success message
-                                                                                                                                                                                                                                                                                                                                                                                    if: steps.sync.outcome == 'success' || steps.sync.outcome == 'failure'
-                                                                                                                                                                                                                                                                                                                                                                                          run: |
-                                                                                                                                                                                                                                                                                                                                                                                                  echo "🎉 镜像同步已完成！"
-                                                                                                                                                                                                                                                                                                                                                                                                          echo "📅 同步时间: $(date)"
-                                                                                                                                                                                                                                                                                                                                                                                                                  echo "🔗 Gitee 源: https://gitee.com/CreateCN/mcrgradletool"
-                                                                                                                                                                                                                                                                                                                                                                                                                          echo "🔗 GitHub 目标: https://github.com/CreateCN/mcrgradletool"
-                                                                                                                                                                                                                                                                                                                                                                                                                                  echo ""
-                                                                                                                                                                                                                                                                                                                                                                                                                                          echo "💡 说明:"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                  echo "   - 分支和标签已成功同步"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          echo "   - 忽略的 pull request 引用是 GitHub 的保护机制，不影响使用"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  echo "   - 仓库内容已完全镜像"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                              - name: Final status
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    run: |
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            if [ "${{ steps.sync.outcome }}" == "success" ]; then
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      echo "🏁 工作流执行状态: 完全成功"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              else
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        echo "⚠️  工作流执行状态: 部分成功（主要内容已同步）"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  echo "   某些 GitHub 保护引用无法更新，这是正常现象"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          fi
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Clone from Gitee and push to GitHub
+        id: sync
+        run: |
+          # 创建临时目录
+          mkdir -p /tmp/mirror-sync
+          cd /tmp/mirror-sync
+          
+          echo "🔄 开始从 Gitee 镜像同步..."
+          
+          # 从Gitee镜像克隆
+          git clone --mirror https://gitee.com/CreateCN/mcrgradletool.git .
+          echo "✅ 成功从 Gitee 克隆仓库"
+          
+          # 设置GitHub远程仓库
+          git remote set-url --push origin https://${{ secrets.PAT_TOKEN }}@github.com/CreateCN/mcrgradletool.git
+          
+          echo "🚀 开始推送到 GitHub..."
+          
+          # 强制推送到GitHub，忽略特定错误
+          git push --mirror --force || true
+          
+          echo "📊 检查同步状态..."
+          
+          # 显示同步的分支信息
+          echo "=== 已同步的分支 ==="
+          git branch -a | grep -v "gitee/" || true
+          
+          # 显示同步的标签信息
+          echo "=== 已同步的标签 ==="
+          git tag -l || true
+          
+          # 检查主要内容是否已同步
+          MAIN_SYNCED=$(git ls-remote origin refs/heads/main | wc -l)
+          if [ "$MAIN_SYNCED" -gt 0 ]; then
+            echo "✅ 主分支同步成功"
+          else
+            echo "❌ 主分支同步失败"
+          fi
+          
+          # 清理
+          cd /tmp
+          rm -rf mirror-sync
+          
+      - name: Display success message
+        if: steps.sync.outcome == 'success' || steps.sync.outcome == 'failure'
+        run: |
+          echo "🎉 镜像同步已完成！"
+          echo "📅 同步时间: $(date)"
+          echo "🔗 Gitee 源: https://gitee.com/CreateCN/mcrgradletool"
+          echo "🔗 GitHub 目标: https://github.com/CreateCN/mcrgradletool"
+          echo ""
+          echo "💡 说明:"
+          echo "   - 分支和标签已成功同步"
+          echo "   - 忽略的 pull request 引用是 GitHub 的保护机制，不影响使用"
+          echo "   - 仓库内容已完全镜像"
+          
+      - name: Final status
+        run: |
+          if [ "${{ steps.sync.outcome }}" == "success" ]; then
+            echo "🏁 工作流执行状态: 完全成功"
+          else
+            echo "⚠️  工作流执行状态: 部分成功（主要内容已同步）"
+            echo "   某些 GitHub 保护引用无法更新，这是正常现象"
+          fi
