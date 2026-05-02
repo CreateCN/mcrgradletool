@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mcrgt.exe)",
+      "Bash(./mcrgt.exe *)"
+    ]
+  }
+}

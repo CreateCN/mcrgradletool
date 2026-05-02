@@ -15,7 +15,7 @@ import (
 // 版本信息常量
 const (
 	AppName    = "MCr_gradletools"
-	Version    = "0.4.3"
+	Version    = "0.5.0"
 	BuildDate  = "2025-10-03"
 	GoVersion  = "go1.25"
 	Repository = "https://gitee.com/CreateCN/mcrgradletool"
@@ -128,6 +128,37 @@ func main() {
 				},
 			},
 			{
+				Name:  "download-move",
+				Usage: "下载指定版本的Gradle并迁移到指定文件夹",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "edition",
+						Aliases: []string{"e"},
+						Usage:   "Gradle版本类型: bin (二进制版) 或 all (完整版)",
+						Value:   "bin",
+					},
+				},
+				Action: func(c *cli.Context) error {
+					version := c.Args().Get(0)
+					targetDir := c.Args().Get(1)
+
+					if version == "" {
+						return fmt.Errorf("请指定Gradle版本号，用法: mcrgt download-move [Gradle版本] [指定文件夹]")
+					}
+					if targetDir == "" {
+						return fmt.Errorf("请指定目标文件夹路径，用法: mcrgt download-move [Gradle版本] [指定文件夹]")
+					}
+
+					// 确保目标文件夹存在
+					if err := os.MkdirAll(targetDir, os.ModePerm); err != nil {
+						return fmt.Errorf("创建目标文件夹失败: %v", err)
+					}
+
+					edition := c.String("edition")
+					return lib.CopyGradleToTarget(version, edition, targetDir)
+				},
+			},
+			{
 				Name:  "download",
 				Usage: "下载指定版本的Gradle",
 				Flags: []cli.Flag{
@@ -204,6 +235,7 @@ func main() {
 			fmt.Println("  check-mirrors - 检查镜像源可用性")
 			fmt.Println("  clear-cache   - 清理Gradle下载缓存")
 			fmt.Println("  download      - 下载指定版本的Gradle")
+			fmt.Println("  download-move - 下载Gradle并迁移到指定文件夹")
 			fmt.Println("  gradle        - 自动处理MCreator的Gradle下载问题")
 			fmt.Println("  version       - 显示程序版本信息")
 			return nil
